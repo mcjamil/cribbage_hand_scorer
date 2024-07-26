@@ -21,46 +21,55 @@ class TestCribbageHandScorer(unittest.TestCase):
     self.assertRaises(Exception, chs.score,
                       cards, top_of_deck_card)
 
-  def test_29(self):
+  def test_big_scores(self):
     """
-    Tests for 29
+    Tests for randomly selected large hand totals
     """
     hand, top_of_deck_card = ([(5, 's'), (5, 'h'), (5, 'd'), (11, 'c')],
                               (5, 'c'))
-    self._test_one_score(hand, top_of_deck_card, 29)
+    # 6 pairs, 8 15's, his nibs
+    expected_score = chs.PAIR_SCORE * 6 + chs.SPECIAL_TOTAL_SCORE * 8 + \
+                     chs.HIS_NIBS_SCORE
+    self._test_one_score(hand, top_of_deck_card, expected_score)
 
-  def test_28(self):
-    """
-    Tests for 28
-    """
     hand, top_of_deck_card = ([(5, 's'), (5, 'h'), (5, 'd'), (5, 'c')],
                               (11, 'c'))
-    self._test_one_score(hand, top_of_deck_card, 28)
+    # 6 pairs, 8 15's
+    expected_score = chs.PAIR_SCORE * 6 + chs.SPECIAL_TOTAL_SCORE * 8
+    self._test_one_score(hand, top_of_deck_card, expected_score)
 
-  def test_24(self):
-    """
-    Tests for 24
-    """
     for hand, top_of_deck_card in [
             ([(7, 's'), (7, 'h'), (7, 'd'), (7, 'c')], (1, 'c')),
             ([(3, 's'), (3, 'h'), (3, 'd'), (3, 'c')], (9, 'c')),
             ([(3, 's'), (6, 'h'), (6, 'd'), (6, 'c')], (6, 's')),
-            ([(4, 's'), (4, 'h'), (4, 'd'), (4, 'c')], (7, 'c')),
+            ([(4, 's'), (4, 'h'), (4, 'd'), (4, 'c')], (7, 'c'))]:
+      # 6 pairs, 6 15's
+      expected_score = chs.PAIR_SCORE * 6 + chs.SPECIAL_TOTAL_SCORE * 6
+      self._test_one_score(hand, top_of_deck_card, expected_score)
+
+    for hand, top_of_deck_card in [
             ([(4, 's'), (4, 'h'), (5, 'd'), (5, 'c')], (6, 'c')),
             ([(4, 's'), (4, 'h'), (5, 'd'), (6, 'c')], (6, 's')),
             ([(4, 's'), (5, 'h'), (5, 'd'), (6, 'c')], (6, 's')),
             ([(6, 's'), (7, 'h'), (7, 'd'), (8, 'c')], (8, 's')),
             ([(7, 's'), (7, 'h'), (8, 'd'), (8, 'c')], (9, 's'))]:
-      self._test_one_score(hand, top_of_deck_card, 24)
+      # 2 pairs, 4 15's, 4 3-card sequences
+      expected_score = chs.PAIR_SCORE * 2 + chs.SPECIAL_TOTAL_SCORE * 4 + \
+                       chs.SINGLE_CARD_SCORE * 3 * 4
+      self._test_one_score(hand, top_of_deck_card, expected_score)
 
-  def test_20(self):
-    """
-    Tests for 20
-    """
-    for hand, top_of_deck_card in [
-            ([(2, 's'), (2, 'h'), (2, 'd'), (2, 'c')], (9, 's')),
-            ([(2, 'h'), (6, 'h'), (7, 'h'), (8, 'h')], (7, 'd'))]:
-      self._test_one_score(hand, top_of_deck_card, 20)
+    hand, top_of_deck_card = ([(2, 's'), (2, 'h'), (2, 'd'), (2, 'c')],
+                              (9, 's'))
+    # 6 pairs, 4 15's
+    expected_score = chs.PAIR_SCORE * 6 + chs.SPECIAL_TOTAL_SCORE * 4
+    self._test_one_score(hand, top_of_deck_card, expected_score)
+
+    hand, top_of_deck_card = ([(2, 'h'), (6, 'h'), (7, 'h'), (8, 'h')],
+                              (7, 'd'))
+    # 1 pair, 4 15's, 2 3-card sequences, 1 4-card flush
+    expected_score = chs.PAIR_SCORE + chs.SPECIAL_TOTAL_SCORE * 4 + \
+                     chs.SINGLE_CARD_SCORE * 3 * 2 + chs.SINGLE_CARD_SCORE * 4
+    self._test_one_score(hand, top_of_deck_card, expected_score)
 
   def test_his_nibs(self):
     """
@@ -128,38 +137,38 @@ class TestCribbageHandScorer(unittest.TestCase):
     hand, top_of_deck_card = ([(9, 's'), (10, 'h'), (11, 'c'), (11, 'd')],
                               (1, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 8)
+                         chs.SINGLE_CARD_SCORE * 3 * 2 + chs.PAIR_SCORE)
     # Double 3-card sequence with top-of-deck card match (1 pair total)
     hand, top_of_deck_card = ([(1, 's'), (10, 'h'), (11, 'c'), (11, 'd')],
                               (9, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 8)
+                         chs.SINGLE_CARD_SCORE * 3 * 2 + chs.PAIR_SCORE)
     # Double 4-card sequence with no top-of-deck pair (1 pair total)
     hand, top_of_deck_card = ([(9, 's'), (10, 'h'), (11, 'c'), (11, 'd')],
                               (12, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 10)
+                         chs.SINGLE_CARD_SCORE * 4 * 2 + chs.PAIR_SCORE)
     # Double 4-card sequence with top-of-deck card pair (1 pair total)
     hand, top_of_deck_card = ([(9, 's'), (10, 'h'), (11, 'c'), (12, 'd')],
                               (9, 'd'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 10)
+                         chs.SINGLE_CARD_SCORE * 4 * 2 + chs.PAIR_SCORE)
     # Double double 3-card sequence with no top-of-deck card pair
     # (2 pairs total)
     hand, top_of_deck_card = ([(10, 's'), (10, 'h'), (11, 'c'), (11, 'd')],
                               (9, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 16)
+                         chs.SINGLE_CARD_SCORE * 3 * 4 + chs.PAIR_SCORE * 2)
     # Double double 3-card sequence with top-of-deck card pair (2 pairs total)
     hand, top_of_deck_card = ([(9, 's'), (10, 'h'), (11, 'c'), (11, 'd')],
                               (10, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 16)
+                         chs.SINGLE_CARD_SCORE * 3 * 4 + chs.PAIR_SCORE * 2)
     # Triple 3-card sequence with top-of-deck card pair (3 pairs total)
     hand, top_of_deck_card = ([(1, 's'), (2, 'h'), (3, 'c'), (3, 'd')],
                               (3, 's'))
     self._test_one_score(hand, top_of_deck_card,
-                         chs.SINGLE_CARD_SCORE * 9 + chs.PAIR_SCORE * 3)
+                         chs.SINGLE_CARD_SCORE * 3 * 3 + chs.PAIR_SCORE * 3)
 
   def test_pairs(self):
     """

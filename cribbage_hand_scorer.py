@@ -288,8 +288,8 @@ def score(cards, top_of_deck_card=None):
 
   # Score each min-card combination and
   # create a list with a two-member tuple (score, hand)
-  min_card_combos_plus_scores = [(score_min_card_combo(hand,
-                                                       top_of_deck_card), hand)
+  min_card_combos_plus_scores = [(score_min_card_combo(hand, top_of_deck_card),
+                                  hand)
                                  for hand in min_card_combos]
 
   # This will automatically sort by the first element in the list
